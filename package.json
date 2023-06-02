@@ -15,9 +15,26 @@
     "commands": [
       {
         "command": "parallelai.helloWorld",
-        "title": "Hello World"
+        "title": "Get parallelizing suggestion ChatGPT"
       }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+          {
+              "id": "parallelai",
+              "title": "ParallelAI",
+              "icon": "media/icon.png"
+          }
+      ]
+  }, "views": {
+    "parallelai": [
+        {
+            "id": "parallelaiView",
+            "name": "ParallelAI"
+        }
     ]
+}
+
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
