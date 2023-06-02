@@ -51,12 +51,26 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 				<meta http-equiv="X-UA-Compatible" content="IE=edge">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>Selected Text</title>
+				<style>
+					h3 {
+						margin: 10px;
+					}
+					pre {
+						background-color: white;
+						border: 1px solid black; /* reintroduced border */
+						padding: 10px;
+						margin: 10px;
+						white-space: pre-wrap;
+					}
+				</style>
 			</head>
 			<body>
+				<h3>Your Code:</h3> <!-- h2 changed to h3 -->
 				<pre>${selectedText}</pre>
 			</body>
 			</html>`;
 	}
+		
 	
 	private _escapeHtml(html: string): string {
 		return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
