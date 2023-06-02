@@ -4,41 +4,66 @@ import * as vscode from 'vscode';
 
 
 export function activate(context: vscode.ExtensionContext) {
-    const treeDataProvider = new MyTreeDataProvider();
-    vscode.window.registerTreeDataProvider('parallelaiView', treeDataProvider);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri)));
+}
+class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 
-    vscode.window.onDidChangeTextEditorSelection(() => {
-        treeDataProvider.refresh();
-    });
+    private _view?: vscode.WebviewView;
+
+    constructor(private readonly _extensionUri: vscode.Uri) { }
+
+    public resolveWebviewView(
+        webviewView: vscode.WebviewView,
+        context: vscode.WebviewViewResolveContext,
+        _token: vscode.CancellationToken,
+    ) {
+        this._view = webviewView;
+
+        webviewView.webview.options = {
+            // Allow scripts in the webview
+            enableScripts: true,
+
+            localResourceRoots: [
+                this._extensionUri
+            ]
+        };
+
+        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    }
+
+	private _getHtmlForWebview(webview: vscode.Webview) {
+		// Use a nonce to whitelist which scripts can be run
+		const nonce = getNonce();
+	
+		const selectedText = getSelectedText();
+	
+		let content = selectedText ? `<pre>${selectedText}</pre>` : `<p>No Selection</p>`;
+	
+		return `<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta http-equiv="X-UA-Compatible" content="IE=edge">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Selected Text</title>
+			</head>
+			<body>
+				${content}
+			</body>
+			</html>`;
+	}
+	
 }
 
-
-class MyTreeDataProvider implements vscode.TreeDataProvider<MyItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<MyItem | undefined> = new vscode.EventEmitter<MyItem | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<MyItem | undefined> = this._onDidChangeTreeData.event;
-
-    refresh(): void {
-        this._onDidChangeTreeData.fire(undefined);
+function getNonce() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
-
-    getTreeItem(element: MyItem): vscode.TreeItem {
-        return element;
-    }
-
-    getChildren(element?: MyItem): vscode.ProviderResult<MyItem[]> {
-        if (element) {
-            return Promise.resolve([]);
-        } else {
-            const selectedText = getSelectedText();
-            if (selectedText) {
-                const item = new MyItem(selectedText);
-                return Promise.resolve([item]);
-            } else {
-                return Promise.resolve([]);
-            }
-        }
-    }
+    return text;
 }
+
 
 
 class MyItem extends vscode.TreeItem {
@@ -56,6 +81,8 @@ function getSelectedText(): string | undefined {
     }
     return undefined;
 }
+
+
 
 // This method is called when your extension is deactivated
 export function deactivate() {}

@@ -30,7 +30,8 @@
     "parallelai": [
         {
             "id": "parallelaiView",
-            "name": "ParallelAI"
+            "name": "ParallelAI",
+            "type": "webview"
         }
     ]
 }
