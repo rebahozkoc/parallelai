@@ -4,13 +4,20 @@ import * as vscode from 'vscode';
 
 
 export function activate(context: vscode.ExtensionContext) {
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri)));
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri, context)));
 }
+
 class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 
     private _view?: vscode.WebviewView;
 
-    constructor(private readonly _extensionUri: vscode.Uri) { }
+    constructor(private readonly _extensionUri: vscode.Uri, private _context: vscode.ExtensionContext) {
+        this._context.subscriptions.push(vscode.window.onDidChangeTextEditorSelection(() => {
+            if (this._view) {
+                this._view.webview.html = this._getHtmlForWebview(this._view.webview);
+            }
+        }));
+    }
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
@@ -31,14 +38,12 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
     }
 
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Use a nonce to whitelist which scripts can be run
+	private _getHtmlForWebview(webview: vscode.Webview): string {
 		const nonce = getNonce();
 	
-		const selectedText = getSelectedText();
-	
-		let content = selectedText ? `<pre>${selectedText}</pre>` : `<p>No Selection</p>`;
-	
+		let selectedText = getSelectedText() || 'No selection';
+		selectedText = this._escapeHtml(selectedText);
+		
 		return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -48,9 +53,13 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 				<title>Selected Text</title>
 			</head>
 			<body>
-				${content}
+				<pre>${selectedText}</pre>
 			</body>
 			</html>`;
+	}
+	
+	private _escapeHtml(html: string): string {
+		return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 	}
 	
 }
