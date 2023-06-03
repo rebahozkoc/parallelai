@@ -7,6 +7,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri, context)));
 
 	let disposable = vscode.commands.registerCommand('extension.askChatGPT', function () {
+        const selectedText = getSelectedText();
         if (selectedText) {
             console.log(`Asked to chat GPT with text command: ${selectedText}`);
         }
@@ -47,7 +48,8 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 			message => {
 				switch (message.command) {
 					case 'askChatGPT':
-						console.log(`Asked to chat GPT with text: ${message.text}`);
+						const selectedText = getSelectedText();
+						console.log(`Asked to chat GPT with text: ${selectedText}`);
 						return;
 				}
 			},
@@ -98,16 +100,15 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 				<pre>${selectedText}</pre>
 				<button id="askButton">Ask to ChatGPT</button>
 				<script nonce="${nonce}">
-			window.onload = function() {
-				const vscode = acquireVsCodeApi();
-				document.getElementById('askButton').addEventListener('click', () => {
-					vscode.postMessage({
-						command: 'askChatGPT',
-						text: "${selectedText}"
+				window.onload = function() {
+					const vscode = acquireVsCodeApi();
+					document.getElementById('askButton').addEventListener('click', () => {
+						vscode.postMessage({
+							command: 'askChatGPT',
+						});
 					});
-				});
-			};
-			</script>
+				};
+				</script>
 			</body>
 			</html>`;
 	}
