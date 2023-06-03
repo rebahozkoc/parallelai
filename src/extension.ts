@@ -50,6 +50,9 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 					case 'askChatGPT':
 						const selectedText = getSelectedText();
 						console.log(`Asked to chat GPT with text: ${selectedText}`);
+						const processedMessage = processMessage(selectedText); // processMessage is your function that processes the message
+						webviewView.webview.postMessage({ command: 'display', text: processedMessage });
+		
 						return;
 				}
 			},
@@ -99,6 +102,8 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 				<h3>Your Code:</h3>
 				<pre>${selectedText}</pre>
 				<button id="askButton">Ask to ChatGPT</button>
+				<h3>Processed Message:</h3>
+            	<pre id="processedMessage"></pre>
 				<script nonce="${nonce}">
 				window.onload = function() {
 					const vscode = acquireVsCodeApi();
@@ -108,6 +113,16 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 						});
 					});
 				};
+				window.addEventListener('message', event => {
+                    const message = event.data; // The JSON data our extension sent
+
+                    switch (message.command) {
+                        case 'display':
+                            const processedMessage = message.text;
+                            document.getElementById('processedMessage').textContent = processedMessage;
+                            break;
+                    }
+                });
 				</script>
 			</body>
 			</html>`;
@@ -119,8 +134,9 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 	}
 }
 
-function askChatGPT() {
-    vscode.commands.executeCommand('extension.askChatGPT');
+
+function processMessage(input: string | undefined): string {
+    return "Processed: " + input;
 }
 
 function getNonce() {
