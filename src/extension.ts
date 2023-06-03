@@ -5,45 +5,71 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri, context)));
+
+	let disposable = vscode.commands.registerCommand('extension.askChatGPT', function () {
+        if (selectedText) {
+            console.log(`Asked to chat GPT with text command: ${selectedText}`);
+        }
+    });
+
+    context.subscriptions.push(disposable);
+	
 }
+let selectedText: string = "";
+let currentViewProvider: SelectedTextWebviewViewProvider | null = null;
 
 class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 
-    private _view?: vscode.WebviewView;
+    public view?: vscode.WebviewView;
 
     constructor(private readonly _extensionUri: vscode.Uri, private _context: vscode.ExtensionContext) {
         this._context.subscriptions.push(vscode.window.onDidChangeTextEditorSelection(() => {
-            if (this._view) {
-                this._view.webview.html = this._getHtmlForWebview(this._view.webview);
+            if (this.view) {
+                this.view.webview.html = this.getHtmlForWebview(this.view.webview);
             }
         }));
     }
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this._view = webviewView;
+	public resolveWebviewView(
+		webviewView: vscode.WebviewView, 
+		context: vscode.WebviewViewResolveContext, 
+		token: vscode.CancellationToken
+	) {
+		this.view = webviewView;
+		currentViewProvider = this;
 
-        webviewView.webview.options = {
-            // Allow scripts in the webview
-            enableScripts: true,
+		webviewView.webview.options = {
+			enableScripts: true
+		};
+	
+		
+		webviewView.webview.onDidReceiveMessage(
+			message => {
+				switch (message.command) {
+					case 'askChatGPT':
+						console.log(`Asked to chat GPT with text: ${message.text}`);
+						return;
+				}
+			},
+			undefined,
+			this._context.subscriptions
+		);
+	
+		this.refresh();
+	}
 
-            localResourceRoots: [
-                this._extensionUri
-            ]
-        };
+	public refresh() {
+		if(this.view) {
+			this.view.webview.html = this.getHtmlForWebview(this.view.webview);
+		}
+	}
 
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-    }
-
-	private _getHtmlForWebview(webview: vscode.Webview): string {
+	public getHtmlForWebview(webview: vscode.Webview): string {
 		const nonce = getNonce();
 	
 		let selectedText = getSelectedText() || 'No selection';
 		selectedText = this._escapeHtml(selectedText);
-		
+	
 		return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -57,25 +83,43 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 					}
 					pre {
 						background-color: white;
-						border: 1px solid black; /* reintroduced border */
+						border: 1px solid black;
 						padding: 10px;
 						margin: 10px;
 						white-space: pre-wrap;
 					}
+					button {
+						margin: 10px;
+					}
 				</style>
 			</head>
 			<body>
-				<h3>Your Code:</h3> <!-- h2 changed to h3 -->
+				<h3>Your Code:</h3>
 				<pre>${selectedText}</pre>
+				<button id="askButton">Ask to ChatGPT</button>
+				<script nonce="${nonce}">
+			window.onload = function() {
+				const vscode = acquireVsCodeApi();
+				document.getElementById('askButton').addEventListener('click', () => {
+					vscode.postMessage({
+						command: 'askChatGPT',
+						text: "${selectedText}"
+					});
+				});
+			};
+			</script>
 			</body>
 			</html>`;
 	}
-		
+	
 	
 	private _escapeHtml(html: string): string {
 		return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 	}
-	
+}
+
+function askChatGPT() {
+    vscode.commands.executeCommand('extension.askChatGPT');
 }
 
 function getNonce() {
@@ -87,26 +131,16 @@ function getNonce() {
     return text;
 }
 
-
-
-class MyItem extends vscode.TreeItem {
-    constructor(label: string) {
-        super(label);
-    }
-}
-
 function getSelectedText(): string | undefined {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
         const document = editor.document;
         const selection = editor.selection;
+		selectedText = document.getText(selection);
         return document.getText(selection);
     }
     return undefined;
 }
 
-
-
 // This method is called when your extension is deactivated
 export function deactivate() {}
-

@@ -16,6 +16,10 @@
       {
         "command": "parallelai.helloWorld",
         "title": "Get parallelizing suggestion ChatGPT"
+      },
+      {
+        "command": "extension.askChatGPT",
+        "title": "Ask to ChatGPT"
       }
     ],
     "viewsContainers": {
