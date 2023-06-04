@@ -62,7 +62,7 @@ export async function processMessage(input: string | undefined, openaiApiKey: st
     } catch (error) {
         if (axios.isAxiosError(error)){
             if (error.code === 'ERR_BAD_REQUEST') {
-                return "ERROR: Bad Request. Please check your API Key.";
+                return "ERROR: Bad Request. Please check your API Key. https://platform.openai.com/account/api-keys";
             }else if (error.code === 'ENOTFOUND'){
                 return "ERROR: Internet connection not found.";
             }

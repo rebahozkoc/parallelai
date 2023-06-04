@@ -63,7 +63,7 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 						const selectedText = getSelectedText();
 						console.log(`Asked to chat GPT with text: ${selectedText}`);
 						const processedMessage = await processMessage(selectedText, openaiApiKey); // processMessage is your function that processes the message
-						if (processedMessage.includes("ERROR: Bad Request. Please check your API Key.")) {
+						if (processedMessage.includes("ERROR: Bad Request. Please check your API Key. https://platform.openai.com/account/api-keys")) {
 							globalContext.globalState.update('openaiApiKey', undefined);
 							vscode.window.showInputBox({ prompt: 'Enter your OpenAI API Key' }).then(value => {
 								if (value) {
@@ -131,7 +131,7 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 			<body>
 			<h4>Selected Code:</h4>
 			<pre>${selectedText}</pre>
-			<button id="askButton">Ask to ChatGPT</button>
+			<button id="askButton">Parallelize with ChatGPT</button>
 			<p id="loadingIndicator" style="display: none;">Loading...</p>
 			<div id="messageContainer" style="display: none;">
 				<h4>Suggestion:</h4>
