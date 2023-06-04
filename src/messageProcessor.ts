@@ -1,0 +1,66 @@
+import * as dotenv from 'dotenv';
+import axios, { AxiosResponse } from 'axios';
+import * as vscode from 'vscode';
+
+dotenv.config();
+
+console.log(process.env);
+
+interface Message {
+    role: string;
+    content: string;
+}
+
+interface RequestBody {
+    model: string;
+    messages: Message[];
+    temperature: number;
+}
+
+function generatePrompt(input: string | undefined): string {
+    if (input) {
+        return `Can you parallelize this code?: \n\n${input}`;
+    } else {
+        return `Provide some general tips for parallel programming.`;
+    }
+}
+
+export async function processMessage(input: string | undefined, openaiApiKey: string | undefined): Promise<string> {
+    let OPENAI_API_KEY: string;
+    if (!openaiApiKey) {
+        const message = `The API Key cannot be empty. https://platform.openai.com/account/api-keys`;
+
+        throw new Error(message);
+    }else{
+        OPENAI_API_KEY =  openaiApiKey;
+    }
+
+
+
+    const data: RequestBody = {
+        model: "gpt-3.5-turbo",
+        messages: [{ "role": "user", "content": generatePrompt(input)}],
+        temperature: 0.7
+    };
+
+    try {
+        const response: AxiosResponse = await axios({
+            method: 'post',
+            url: 'https://api.openai.com/v1/chat/completions',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            data: data
+        });
+        
+        console.log(response.data);
+        
+        let output = response.data.choices[0].message.content;
+        console.log(output);
+        return response.data.choices[0].message.content;
+    } catch (error) {
+        console.error(error);
+        return "Error";
+    }
+}

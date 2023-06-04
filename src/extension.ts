@@ -1,11 +1,21 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { processMessage } from './messageProcessor';
 
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri, context)));
-
+	openaiApiKey = context.globalState.get<string>('openaiApiKey');
+    
+    if (!openaiApiKey) {
+        vscode.window.showInputBox({ prompt: 'Enter your OpenAI API Key' }).then(value => {
+            if (value) {
+                openaiApiKey = value;
+                context.globalState.update('openaiApiKey', value);
+            }
+        });
+    }
 	let disposable = vscode.commands.registerCommand('extension.askChatGPT', function () {
         const selectedText = getSelectedText();
         if (selectedText) {
@@ -16,7 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 	
 }
-let selectedText: string = "";
+let openaiApiKey: string | undefined = "";
+let selectedText = "";
 let currentViewProvider: SelectedTextWebviewViewProvider | null = null;
 
 class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
@@ -45,12 +56,12 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 	
 		
 		webviewView.webview.onDidReceiveMessage(
-			message => {
+			async message => {
 				switch (message.command) {
 					case 'askChatGPT':
 						const selectedText = getSelectedText();
 						console.log(`Asked to chat GPT with text: ${selectedText}`);
-						const processedMessage = processMessage(selectedText); // processMessage is your function that processes the message
+						const processedMessage = await processMessage(selectedText, openaiApiKey); // processMessage is your function that processes the message
 						webviewView.webview.postMessage({ command: 'display', text: processedMessage });
 		
 						return;
@@ -135,9 +146,7 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 }
 
 
-function processMessage(input: string | undefined): string {
-    return "Processed: " + input;
-}
+
 
 function getNonce() {
     let text = '';
