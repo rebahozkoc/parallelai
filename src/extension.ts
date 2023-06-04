@@ -3,11 +3,13 @@
 import * as vscode from 'vscode';
 import { processMessage } from './messageProcessor';
 
-
+let openaiApiKey: string | undefined = "";
+let globalContext : vscode.ExtensionContext;
+let selectedText = "";
 export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider("parallelaiView", new SelectedTextWebviewViewProvider(context.extensionUri, context)));
 	openaiApiKey = context.globalState.get<string>('openaiApiKey');
-
+	globalContext = context;
 	if (!openaiApiKey) {
 		vscode.window.showInputBox({ prompt: 'Enter your OpenAI API Key' }).then(value => {
 			if (value) {
@@ -26,8 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable);
 
 }
-let openaiApiKey: string | undefined = "";
-let selectedText = "";
+
 let currentViewProvider: SelectedTextWebviewViewProvider | null = null;
 
 class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
@@ -62,6 +63,15 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 						const selectedText = getSelectedText();
 						console.log(`Asked to chat GPT with text: ${selectedText}`);
 						const processedMessage = await processMessage(selectedText, openaiApiKey); // processMessage is your function that processes the message
+						if (processedMessage.includes("ERROR: Bad Request. Please check your API Key.")) {
+							globalContext.globalState.update('openaiApiKey', undefined);
+							vscode.window.showInputBox({ prompt: 'Enter your OpenAI API Key' }).then(value => {
+								if (value) {
+									openaiApiKey = value;
+									globalContext.globalState.update('openaiApiKey', value);
+								}
+							});
+						}
 						webviewView.webview.postMessage({ command: 'display', text: processedMessage });
 
 						return;

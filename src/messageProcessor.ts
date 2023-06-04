@@ -19,7 +19,7 @@ interface RequestBody {
 
 function generatePrompt(input: string | undefined): string {
     if (input) {
-        return `Can you parallelize this code?: \n\n${input}`;
+        return `Can you parallelize this code? Please provide the code: \n\n${input}`;
     } else {
         return `Provide some general tips for parallel programming.`;
     }
@@ -60,7 +60,17 @@ export async function processMessage(input: string | undefined, openaiApiKey: st
         console.log(output);
         return response.data.choices[0].message.content;
     } catch (error) {
-        console.error(error);
-        return "Error";
+        if (axios.isAxiosError(error)){
+            if (error.code === 'ERR_BAD_REQUEST') {
+                return "ERROR: Bad Request. Please check your API Key.";
+            }else if (error.code === 'ENOTFOUND'){
+                return "ERROR: Internet connection not found.";
+            }
+        }
+    
+        
+
+        return "UNEXPECTED ERROR";
+            
     }
 }
