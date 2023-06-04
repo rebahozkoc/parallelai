@@ -110,32 +110,43 @@ class SelectedTextWebviewViewProvider implements vscode.WebviewViewProvider {
 				</style>
 			</head>
 			<body>
-				<h3>Your Code:</h3>
-				<pre>${selectedText}</pre>
-				<button id="askButton">Ask to ChatGPT</button>
-				<h3>Processed Message:</h3>
-            	<pre id="processedMessage"></pre>
-				<script nonce="${nonce}">
-				window.onload = function() {
-					const vscode = acquireVsCodeApi();
-					document.getElementById('askButton').addEventListener('click', () => {
-						vscode.postMessage({
-							command: 'askChatGPT',
-						});
-					});
-				};
-				window.addEventListener('message', event => {
-                    const message = event.data; // The JSON data our extension sent
+			<h3>Your Code:</h3>
+			<pre>${selectedText}</pre>
+			<button id="askButton">Ask to ChatGPT</button>
+			<p id="loadingIndicator" style="display: none;">Loading...</p>
+			<h3>Processed Message:</h3>
+			<pre id="processedMessage"></pre>
+			<script nonce="${nonce}">
+			window.onload = function() {
+				const vscode = acquireVsCodeApi();
+				const loadingIndicator = document.getElementById('loadingIndicator');
 
-                    switch (message.command) {
-                        case 'display':
-                            const processedMessage = message.text;
-                            document.getElementById('processedMessage').textContent = processedMessage;
-                            break;
-                    }
-                });
-				</script>
-			</body>
+				document.getElementById('askButton').addEventListener('click', () => {
+					// Show the loading indicator
+					loadingIndicator.style.display = 'block';
+
+					vscode.postMessage({
+						command: 'askChatGPT',
+					});
+				});
+			};
+
+			window.addEventListener('message', event => {
+				const message = event.data; // The JSON data our extension sent
+
+				switch (message.command) {
+					case 'display':
+						const processedMessage = message.text;
+
+						// Hide the loading indicator
+						loadingIndicator.style.display = 'none';
+
+						document.getElementById('processedMessage').textContent = processedMessage;
+						break;
+				}
+			});
+			</script>
+		</body>
 			</html>`;
 	}
 	
