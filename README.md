@@ -1,20 +1,17 @@
 # parallelai README
 
-This is the README for your extension "parallelai". After writing up a brief description, we recommend including the following sections.
+This extension is a wrapper for asking code parallelization questions to ChatGPT.It uses the OpenAI API to generate answers to questions about parallelization. To use this extension, simply highlight the code you want to parallelize and press to the ParallelAI button from the activity bar.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The overall usage of the extension is as follows:
 
-For example if there is an image subfolder under your extension project workspace:
+\!\[Usage\]\(images\ss_1.png\)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+To use this extension you need to have an OpenAI API key. You can get one by signing up from https://platform.openai.com/account/api-keys
 
 ## Extension Settings
 
@@ -24,48 +21,21 @@ For example:
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `parallelai.emptyPrompt`: Set the content of the prompt be when there is no selection.
+* `parallelai.selectionPrompt`: Set the content of the prompt be when a code block is selected.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* The dark theme is not supported yet.
+
+* The fine tuning of the model is not done yet.
+
+* This version is the first release of the extension and it is still under development. If you encounter any issues, please report them at rebahozkoc@gmail.com
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+Here is the release notes of the extension:
 
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release of ParallelAI
