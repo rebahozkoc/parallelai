@@ -3,6 +3,7 @@
   "displayName": "ParallelAI",
   "description": "Parallelize your code with ChatGPT",
   "version": "0.0.1",
+  "publisher": "rebahozkoc",
   "engines": {
     "vscode": "^1.78.0"
   },
