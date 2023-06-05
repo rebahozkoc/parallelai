@@ -39,6 +39,21 @@
           "type": "webview"
         }
       ]
+    },
+    "configuration": {
+      "title": "Parallel AI",
+      "properties": {
+        "parallelai.emptyPrompt": {
+          "type": "string",
+          "default": "Provide some general tips for parallel programming.",
+          "description": "What should the content of the prompt be when there is no selection?"
+        },
+        "parallelai.selectionPrompt": {
+          "type": "string",
+          "default": "Can you parallelize this code? Please provide the code:",
+          "description": "What should the content of the prompt be when a code block is selected?"
+        }
+      }
     }
   },
   "scripts": {

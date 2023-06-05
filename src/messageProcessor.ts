@@ -18,10 +18,23 @@ interface RequestBody {
 }
 
 function generatePrompt(input: string | undefined): string {
+    let config = vscode.workspace.getConfiguration('parallelai');
+    
     if (input) {
-        return `Can you parallelize this code? Please provide the code: \n\n${input}`;
+        let selectionPrompt: string | undefined = config.get('selectionPrompt');
+        if (selectionPrompt){
+            return selectionPrompt + "\n\n" + input;
+        }else{
+            return `Can you parallelize this code? Please provide the code: \n\n${input}`;
+        }
+
     } else {
-        return `Provide some general tips for parallel programming.`;
+        let emptyPrompt: string | undefined = config.get('emptyPrompt');
+        if (emptyPrompt){
+            return emptyPrompt;
+        }else{
+            return "Provide some general tips for parallel programming.";
+        }
     }
 }
 
