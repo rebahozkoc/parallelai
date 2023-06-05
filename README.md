@@ -6,8 +6,7 @@ This extension is a wrapper for asking code parallelization questions to ChatGPT
 
 The overall usage of the extension is as follows:
 
-\!\[Usage\]\(images\ss_1.png\)
-
+![Usage](images/ss_1.png)
 
 ## Requirements
 
