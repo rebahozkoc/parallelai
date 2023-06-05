@@ -1,12 +1,14 @@
 # parallelai README
 
-This extension is a wrapper for asking code parallelization questions to ChatGPT.It uses the OpenAI API to generate answers to questions about parallelization. To use this extension, simply highlight the code you want to parallelize and press to the ParallelAI button from the activity bar.
+This extension is a wrapper for asking code parallelization questions to ChatGPT. It uses the OpenAI API to generate answers to questions about parallelization. To use this extension, simply highlight the code you want to parallelize and press to the ParallelAI button from the activity bar.
 
 ## Features
 
 The overall usage of the extension is as follows:
 
-![Usage](images/ss_1.png)
+1. Highlight the code you want to parallelize.
+2. Press the ParallelAI button from the activity bar.
+3. Press the Parallelize button from the prompt.
 
 ## Requirements
 
