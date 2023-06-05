@@ -10,6 +10,8 @@ The overall usage of the extension is as follows:
 2. Press the ParallelAI button from the activity bar.
 3. Press the Parallelize button from the prompt.
 
+![Usage](images/ss_1.png)
+
 ## Requirements
 
 To use this extension you need to have an OpenAI API key. You can get one by signing up from https://platform.openai.com/account/api-keys
